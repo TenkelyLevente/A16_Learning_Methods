@@ -38,7 +38,7 @@ A megvalósítás során a Google Colab segítségével írtuk meg és futtattuk
 
 Feladatnak a Fashion-MNIST adatgyűjteményt választottuk, amely képeket tartalmaz különböző ruhadarabokról. 10 darab különböző osztályból áll és ezt kell a hálónak megfelelően klasszifikálnia.
 
-![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/4.png)
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/4.jpg)
 
 ### 3.1.1 Eredmények
 Az előbb bemutatott algoritmusok alapján megvalósítuttok kódban is a klasszifikálást. A kapott eredmények alapján látható, hogy a neurális hálóknak rendkívül nagy a számítási igénye, mivel rendkívül sok paraméterből állnak. A gradiens alapú keresés elég gyorsan viszont elég jó minőségű megoldást ad, míg a többi algoritmus hozzá viszonyítva rendkívül lassan konvergál a megoldáshoz. Ezt azzal indokoljuk, hogy mivel rendkívül sok paramétert kell figyelemmel tartaniuk és nem használnak gradiens alapú keresést, így nagyon lassan tanulnak. Továbbá azt is meg kell említeni, hogy az előző algoritmusoknak elég sok állítható paramétere van, és minden egyes paraméter kombináció más-más tanulást eredményezhet. Esetlegesen előfordulhat, hogy adott paraméter kombinációkkal jobb eredményeket tudtunk volna elérni, de még így is látható, hogyha lassan is, de konvergálnak a megoldás felé.
