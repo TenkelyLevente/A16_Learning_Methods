@@ -19,11 +19,16 @@ Előnye, hogy jól teljesít nem szeparábilis problémák esetén, ha az objekt
 
 ### 2.3 Genetikus algoritmus
 
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/1.png)
+
 A genetikus algoritmus speciális evolúciós algoritmusok, szintén a természetből ellesett optimalizációs technika. Az algoritmus során kezdetben létrehozunk egy kezdeti populációt, majd a populációban lévő egyedeket rangsoroljuk az egyes egyedekre jellemző fitnesz érték (alkalmassági érték) alapján, hogy mennyire jó megoldást adnak a feladatra. Ezek után végrehajtunk a populáción egy szelekciót, a fitnesz érték alapján (minél jobb az egyed, annál nagyobb az esély a kiválasztására). Az így megmaradt egyedeket pedig keresztezzük egymással egy véletlenszerű keresztezési pont kiválasztása alapján. Végezetül pedig mutációt hajtunk végre a populáción, mégpedig úgy, hogy az egyedekhez tartozó gének értékeit véletlenszerűen egy p_m (mutációs arány) valószínűséggel megváltoztatjuk. És ezt a folyamatot ismételjük az egyedek rangsorolásától kezdve a populáció mutációjáig, ameddig megfelelő eredményre nem jutunk.
 
 ### 2.4 Gradient descent
 
 A gradiens módszer lényege, hogy mindig a legnagyobb csökkenés irányába haladunk. Kétváltozós függvény esetén ez úgy képzelhető el, hogy a hegyről a legmeredekebb úton ereszkedünk le a völgybe. A térképen megszokott szintvonalakkal ez jól ábrázolható. A 2. ábra első részén egy kétváltozós függvény képe, a második részén pedig a szintvonalak és a negatív gradiensek láthatóak. A csökkenés iránya jól megfigyelhető.
+
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/2.png)
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/3.png)
 
 ## 3 Megvalósítás
 
@@ -33,21 +38,29 @@ A megvalósítás során a Google Colab segítségével írtuk meg és futtattuk
 
 Feladatnak a Fashion-MNIST adatgyűjteményt választottuk, amely képeket tartalmaz különböző ruhadarabokról. 10 darab különböző osztályból áll és ezt kell a hálónak megfelelően klasszifikálnia.
 
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/4.png)
+
 ### 3.1.1 Eredmények
 Az előbb bemutatott algoritmusok alapján megvalósítuttok kódban is a klasszifikálást. A kapott eredmények alapján látható, hogy a neurális hálóknak rendkívül nagy a számítási igénye, mivel rendkívül sok paraméterből állnak. A gradiens alapú keresés elég gyorsan viszont elég jó minőségű megoldást ad, míg a többi algoritmus hozzá viszonyítva rendkívül lassan konvergál a megoldáshoz. Ezt azzal indokoljuk, hogy mivel rendkívül sok paramétert kell figyelemmel tartaniuk és nem használnak gradiens alapú keresést, így nagyon lassan tanulnak. Továbbá azt is meg kell említeni, hogy az előző algoritmusoknak elég sok állítható paramétere van, és minden egyes paraméter kombináció más-más tanulást eredményezhet. Esetlegesen előfordulhat, hogy adott paraméter kombinációkkal jobb eredményeket tudtunk volna elérni, de még így is látható, hogyha lassan is, de konvergálnak a megoldás felé.
+
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/5.png)
 
 Ahogy az előző ábrákon is látható a gradiens alapú keresés rendkívül gyors a többi algoritmussal szemben. Kísérleteztünk azzal, hogy kombináltuk a gradiens alapú keresést a genetikus algoritmussal. Ebben az esetben láthatóan jobb eredményt tudtunk elérni, mint a sima gradiens alapú keresés során. Ezt azzal magyarázhatjuk, hogy a genetikus algoritmusnak köszönhetően még kevésbé tud lokális minimumban ragadni, mivel az mindig a mutációknak köszönhetően kimozdítja onnan.
 Az alábbi ábrán látható a CAM algoritmuson elért eredményeink. Ez teljesített a feladat szempontjából a leggyengébben, de ennek a dokumentációjában is szerepel, hogy részlegesen szeparálható problémák esetén, vagy amikor az objektív függvény deriváltja könnyen meghatározható, akkor rendkívül gyengén teljesít a többi algoritmushoz viszonyítva.
 
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/6.png)
+
 ### 3.2 Konvolúciós rétegek alkalmazása CIFAR10 adatgyűjteményen
 
 Egy konvolúciós neurális hálón is megnéztük a genetikus algoritmus és a gradiens módszer kombináltját a CIFAR10 adatgyűjteményen összehasonlítva a puszta gradiens alapú módszerrel. Az alábbi ábrán láthatók az eredmények. Összességében hasonlóak az előbbiekhez.
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/7.png)
 
 ### 3.3 Regressziós feladat
 Elvégeztünk egy regressziós feladatot is, ahol az előző algoritmusokat ismételten összehasonlítottuk. A választott adatgyűjtemény az Auto MPG adatgyűjtemény (UCI Machine Learning Repository: Auto MPG Data Set), ahol az autó adatai alapján becsüljük meg a városi üzemanyag fogyasztását.
 
 #### 3.3.1 Regresszión kapott eredmények
- 
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/8.png)
+![alt text](https://github.com/TenkelyLevente/A16_Learning_Methods/blob/main/images/9.png)
 A felső ábrán látható, hogy a genetikus algoritmus milyen eredményt ért el az adathalmazon, illetve az alsón az, hogy a gradiens esés és az NGA milyen eredményeket értek el. A CAM ezen az adathalmazon még rosszabbul teljesített, mint az előzőn, így azt nem ábrázoltuk.
 
 ## 4 Konklúzió
