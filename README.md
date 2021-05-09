@@ -67,3 +67,136 @@ A felső ábrán látható, hogy a genetikus algoritmus milyen eredményt ért e
 
 A neurális hálókat tekintve a gradiens alapú algoritmusok sokkalta jobban teljesítenek, mint a nem gradiens alapúak, viszont sokkalta hajlamosabbak lokális minimumok ragadni. Ezzel szemben önmagukban ezekre a feladatokra nem ajánljuk saját tapasztalataink alapján a genetikus és evolúciós algoritmusokat, mivel a neurális háló rendkívül sok paraméterére nem tudnak olyan jól tanulni, mint gradiens alapú társaik. Azonban egy rendkívül jó ötletnek tartjuk ötvözni ezeket a módszereket
 Ezzel szemben rendkívül jók olyan feladatokra a neurális hálókkal kapcsolatosan, amiket a gradiens alapú módszerek képtelenek lekezelni. A hiperparaméter optimalizálás egy pont ilyen téma. Azok a paraméterek, illetve a neurális háló szerekezete, illetve egyéb paraméterek, amelyekre nem tud hibát számolni a modell, így gradiensét se tudja meghatározni, azokra tökéletesek lehetnek az evolúciós és genetikus algorimtusok.
+
+# How to use
+
+Három kód található a repositoryban. A kódok között a fő különbség az, hogy milyen hálót, veszteségfüggvényt, adatgyűjteményt, illetve algoritmusokat tartalmaznak.
+
+* ga_plusz_gd_kombo_cifar.py
+* regression.py
+* image_classification.py
+
+Mindegyik kód hasonló felépítéssel bír. Első sorban mindig a még telepítendő könyvtárakat tesszük fel, amennyiben importálni szeretnénk a hozzá tartozó könyvtárakat. Erre például:
+```pip install evolutionary-keras```
+Ezután importáljuk a könyvtárakat, amiket esetlegesen felhasználunk (jelenleg van bár könyvtár, amit az előzőekben használtunk, de jeleleg nem használjuk őket, a későbbiekben esetleges módosítások miatt tartottuk meg őket:
+
+```# Könyvtárak importálása
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import keras
+import numpy as np
+from tensorflow.keras import Sequential, layers, models, datasets
+from keras.layers import Dense, Conv2D , MaxPool2D , Flatten ,Input
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report, confusion_matrix
+import datetime
+import seaborn as sn
+import pandas as pd
+import random, time
+import sys
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras import backend as K
+from evolutionary_keras.models import EvolModel
+import evolutionary_keras.optimizers
+from tensorflow.keras.models import Model
+```
+Ezután az adatgyűjteményeket beolvassuk és kiszedjük a hozzátartozó adatokat, illetve esetlegesen előfeldolgozzuk őket. Kiszedjük belőlük a tanító, illetve tesztelő adatokat.
+
+```(train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
+
+train_images, test_images = train_images / 255.0, test_images / 255.0
+
+class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck']
+```
+Ezután létrehozzuk a hálót. Ezt többféleképpen valósítottuk meg. A Keras API segítségével, illetve csak pusztán a megszokott módon:
+
+```
+def modelbuilder():
+    model = keras.Sequential([
+      layers.Input(shape=(32, 32, 3)),
+      layers.Conv2D(8, (3, 3), activation='sigmoid'),
+      layers.MaxPool2D(),
+      layers.Conv2D(8, (3, 3), activation='sigmoid'),
+      layers.MaxPool2D(),
+      layers.Conv2D(8, (3, 3), activation='sigmoid'),
+      layers.MaxPool2D(),
+      layers.Flatten(),
+      layers.Dense(len(class_names),activation="softmax")
+    ])
+    model.compile(optimizer=tf.keras.optimizers.Adam(0.01),
+              loss="sparse_categorical_crossentropy",
+              metrics=['accuracy'])
+    return model
+```
+Illetve az API-val:
+```
+inputs = Input(shape=(28, 28, 1))
+flatten = Flatten()(inputs)
+dense = Dense(8, activation="relu")(flatten)
+dense = Dense(8, activation="relu")(dense)
+prediction = Dense(10, activation="softmax")(dense)
+modelGD=Model(inputs=inputs, outputs=prediction)
+modelGD.compile(optimizer=tf.keras.optimizers.Adam(0.0001),
+              loss="categorical_crossentropy",
+              metrics=['accuracy'])
+```
+Az evolúciós algoritmusokhoz tartozó modelleket a Model helyett csak a EvolModel:
+```
+Model(inputs=inputs, outputs=prediction)
+EvolModel(inputs=inputs, outputs=prediction)
+```
+Minden algoritmushoz külön modellt/eket hoztunk létre.
+
+A tanítások minden algoritmus esetén eltérnek:
+A gradiens alapú illetve az evolúciós algoritmusoknál a model.fit függvénnyel elkezdenek tanulni a modellek a hozzájuk tartozó algoritmusokkal (CMA,NGA,GD).
+Ezekhez az eredmények a megfelelő historyX-ban lesz eltárolva.
+
+Kipróbáltuk a PyGAD könyvtárat is regresszió esetén, ahol a rendkívül sok opció elérhető mutációkat és keresztezéseket tekintve. Itt a tanítás és a kiértékelés külön meg van írva a kommentekből logikusan következnek a megadott lépesek:
+```
+# Prepare the PyGAD parameters. Check the documentation for more information: https://pygad.readthedocs.io/en/latest/README_pygad_ReadTheDocs.html#pygad-ga-class
+num_generations = 300 # Number of generations.
+num_parents_mating = 30 # Number of solutions to be selected as parents in the mating pool.
+initial_population = keras_ga.population_weights # Initial population of network weights
+parent_selection_type = "sss" # Type of parent selection.
+crossover_type = "two_points" # Type of the crossover operator.
+mutation_type = "random" # Type of the mutation operator.
+mutation_percent_genes = 10 # Percentage of genes to mutate. This parameter has no action if the parameter mutation_num_genes exists.
+keep_parents = 1 # Number of parents to keep in the next population. -1 means keep all parents and 0 means keep nothing.
+
+ga_instance = pygad.GA(num_generations=num_generations,
+                       num_parents_mating=num_parents_mating,
+                       initial_population=initial_population,
+                       fitness_func=fitness_func,
+                       parent_selection_type=parent_selection_type,
+                       crossover_type=crossover_type,
+                       mutation_type=mutation_type,
+                       mutation_percent_genes=mutation_percent_genes,
+                       keep_parents=keep_parents,
+                       on_generation=callback_generation)
+
+# Start the genetic algorithm evolution.
+ga_instance.run()
+
+# After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
+ga_instance.plot_result(title="PyGAD & Keras - Iteration vs. Fitness", linewidth=4)
+
+# Returning the details of the best solution.
+solution, solution_fitness, solution_idx = ga_instance.best_solution()
+print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
+
+# Fetch the parameters of the best solution.
+best_solution_weights = pygad.kerasga.model_weights_as_matrix(model=model,
+                                                              weights_vector=solution)
+model.set_weights(best_solution_weights)
+predictions = model.predict(data_inputs)
+print("Predictions : \n", predictions)
+
+mae = tensorflow.keras.losses.MeanAbsoluteError()
+abs_error = mae(data_outputs, predictions).numpy()
+print("Absolute Error : ", abs_error)
+```
+A genetikus algoritmus és a gradiens alapú keresés kombináltja, ahol még eltér a többi algotirmustól a megoldás.
+A keresztezést egyszerűen kikérjük a 2 szülőt és 50-50% eséllyel tartjuk meg az egyik, illetve a másik paramétereit. Mutáció hasonlóan van megvalósítva, csak ott egy random értékkel módosítjuk a meglévő értékeket adott valószínűséggel (mutation_rate), illetve adott mértékben (mutation_power). A ```runtournament()``` függvényben kiválasztunk a modellek közül egy részhalmazt, majd azon belül a 2 legjobb egyeddel térünk vissza. A fitness érték kiszámítása a ```parallel_scoring()``` függvényben számolódik ki.
+A ```parallel_muttion()``` függvényben határozzuk meg a
