@@ -199,4 +199,46 @@ print("Absolute Error : ", abs_error)
 ```
 A genetikus algoritmus és a gradiens alapú keresés kombináltja, ahol még eltér a többi algotirmustól a megoldás.
 A keresztezést egyszerűen kikérjük a 2 szülőt és 50-50% eséllyel tartjuk meg az egyik, illetve a másik paramétereit. Mutáció hasonlóan van megvalósítva, csak ott egy random értékkel módosítjuk a meglévő értékeket adott valószínűséggel (mutation_rate), illetve adott mértékben (mutation_power). A ```runtournament()``` függvényben kiválasztunk a modellek közül egy részhalmazt, majd azon belül a 2 legjobb egyeddel térünk vissza. A fitness érték kiszámítása a ```parallel_scoring()``` függvényben számolódik ki.
-A ```parallel_muttion()``` függvényben határozzuk meg a
+A ```parallel_muttion()``` függvényben futtatunk le egy tournamentet, aztán annak nyerteseit keresztezzük, s az így kapott egyeden mutációt végzünk el.
+A futtatás tekintetében inicializáljuk a kezdeti változókat. Ilyen pl. a populáció, generációk száma, illetve, hogy mekkora részhalmaz vegyen részt a versenyen:
+```current_pool = [] #actual networks saved
+fitness = [] #save value for each network
+total_models = 20 #we load 75 models in random state
+generations=40 #we perform and train GA over 1000 generationand end
+bestfitness_index=0
+tournament_sel=8 #usefull for tournament selection method
+```
+Az egyedeket feltöltjük egy-egy random modellel:
+```
+# Initialize all models with random weigth
+for i in range(total_models):
+    # model
+    model=modellecske()
+    weights = model.get_weights()
+    weights = [np.random.permutation(w.flat).reshape(w.shape) for w in weights]
+    model.set_weights(weights)
+    #model.summary()
+    current_pool.append(model)
+    fitness.append(-100)
+```
+Függvényen kívüli változókba eltároljuk, hogy adott generációban milyen eredményeket ért el a függvény:
+```
+val_scores=[]
+val_acc=[]
+train_scores=[]
+train_acc=[]
+```
+Ezt követi egy for ciklus, ami egy-egy generációt valósít meg lefutásonként. Itt minden lépés elején tanítunk egy kicsit a modelleken. Kiértékeljük a veszteségüket, s az alapján rangsoroljuk őket. A legjobb egyedet megtartjuk, a többi egyedet meg a ```mutittion``` függvény segítségével hozzuk létre, aztán ezt ismételjük.
+
+Minden kód végén lehetőségekhez mérten ábrázoljuk a kapott eredményeket az alábbi módon:
+```
+plt.figure(figsize=(5,5))
+plt.plot(range(len(historyGD.history['loss'])), historyGD.history['loss'], label='Gradient Descent')
+plt.plot(range(len(historyNGA.history['loss'])), historyNGA.history['loss'],label='NGA')
+plt.plot(range(len(train_scores)), train_scores, label='GD+GA')
+
+plt.legend()
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+```
+
